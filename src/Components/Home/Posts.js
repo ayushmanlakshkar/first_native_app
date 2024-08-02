@@ -1,0 +1,78 @@
+import { React, useState, useEffect } from 'react';
+import { View, Text, FlatList, Image, Pressable, TouchableHighlight } from 'react-native';
+import AntIcon from 'react-native-vector-icons/AntDesign';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import Comments from './Post/Comments';
+import { Alert, Modal, StyleSheet } from 'react-native';
+import { usePosts, useComments, useReports } from '../../store';
+import Reportoptions from './Post/Reportoptions';
+import { InstaData } from '../../assets/data';
+
+function Posts() {
+    const { isOpen, setOpen } = useComments();
+    const { posts, setPosts, setLiked } = usePosts();
+    const { isReportOpen, setReportOpen } = useReports()
+
+    useEffect(() => {
+        setPosts(InstaData.HomePosts)
+    }, [])
+    return (<>
+        <FlatList
+            data={posts}
+            renderItem={({ item }) => {
+                return (
+                    <View style={{ marginBottom: 15 }}>
+                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 10 }}>
+                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                <Image
+                                    source={{
+                                        uri: item.profile
+                                    }}
+                                    style={{ width: 40, height: 40, borderRadius: 20 }}
+                                />
+                                <Text style={{ color: "white", fontWeight: 'bold', fontSize: 18 }}>{item.username}</Text>
+                            </View>
+                            <TouchableHighlight onPress={() => {
+                                setReportOpen()
+                                console.log(isReportOpen)
+                            }} underlayColor='#333333' style={{ borderRadius: 20, }}>
+                                <View>
+                                    <FeatherIcon name='more-vertical' size={20} color='white' style={{ padding: 5 }} />
+                                </View>
+                            </TouchableHighlight>
+
+                        </View>
+                        <Image
+                            source={{
+                                uri: item.picture
+                            }}
+                            style={{ width: '100%', height: 300 }}
+                        />
+                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 10, gap: 15 }}>
+                            <TouchableHighlight onPress={() => {
+                                setLiked(item.postId, item.isLiked)
+                            }
+                            }>
+                                <AntIcon name={item.isLiked ? 'heart' : 'hearto'} size={30} color={item.isLiked ? 'red' : 'white'} />
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={() => setOpen()}>
+                                <FeatherIcon name='message-circle' size={30} color='white' />
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{ marginHorizontal: 10 }}>
+                            <Text style={{ color: "white", fontWeight: 'bold' }}>{item.likes} likes</Text>
+                            <Text style={{ color: "white" }}><Text style={{ fontWeight: 'bold' }}>{item.username}</Text> {item.caption}</Text>
+                        </View>
+                    </View>
+                );
+            }}
+            keyExtractor={(item) => item.postId}
+        />
+        {isOpen ? <Comments /> : null}
+        {isReportOpen ? <Reportoptions /> : null}
+    </>
+    );
+}
+
+
+export default Posts;
